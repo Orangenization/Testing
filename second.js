@@ -45,23 +45,42 @@ function updateDisplay() {
 
 
 
-// Listen for secret slide
+//My key slider, which act as a gamble mechanism
 document.addEventListener("keydown", function (event) {
     const key = event.key.toLowerCase();
     const now = Date.now();
-
+// slideKeyIndex start with 0, which is "z" in slideKeys. Check if they are correct, then move to check the next key, which is 1, equal to "x". Then check if time between those 2 buttons are less then 200ms
     if (key === slideKeys[slideKeyIndex] && now - slideTime < 200) {
         slideKeyIndex++;
         slideTime = now;
-//slideKeyIndex will start at 0, which is Z. 
-        if (slideKeyIndex === slideKeys.length) {
-            systemBox();
-            items = [];
+
+    if (slideKeyIndex === slideKeys.length) {
+        items = [];
+        const gamble = Math.random() < 0.2; //20% win
+
+        if (gamble) { // boolean to check if gamble is true ( 20% )
+            for (let i = 0; i < premadeColors.length; i++) {
+                items.push({
+                color: itemsSystem[i].color, shape: itemsSystem[i].shape
+                });
+            }
+            score += 30;
+            alert("Gamble win");
+            } else { // or false ( 80% )
+                for (let i = 0; i < premadeColors.length; i++) {
+                    const randomColor = premadeColors[Math.floor(Math.random() * premadeColors.length)];
+                    const randomShape = Math.random() < 0.5 ? "square" : "circle";
+                    items.push({ color: randomColor, shape: randomShape });
+                }
+                score -= 10;
+                if (score < 0) score = 0;
+                alert("Gamble lost");
+            }
             updateDisplay();
-            alert("Reset slide");
             slideKeyIndex = 0;
         }
-    } else if (key === slideKeys[0]) {
+
+    } else if (key === slideKeys[0]) { // reset the Index back to 1 if mistakenly press something else, then press Z will reset the whole thing and start running again
         slideKeyIndex = 1;
         slideTime = now;
     } else {
@@ -147,7 +166,7 @@ document.getElementById("CheckerButton").addEventListener("pointerdown", functio
             score = 0;
         }
         if (hiddenScore < -2 && score == 0) {
-            window.open("");
+            window.open("https://www.youtube.com/watch?v=lfmg-EJ8gm4");
             hiddenScore = 0;
         }
         updateDisplay();
