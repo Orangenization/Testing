@@ -4,10 +4,10 @@ let itemsSystem = []; // array to hold item (use for system boxes)
 let score = 10; // Score
 let hiddenScore = 0; // hidden score
 let circleKeys = ["Q", "W", "E", "R", "T", "Y", "U"]; // Keys to summon circle shape
-//let squareKeys = ["1", "2", "3", "4", "5", "6", "7"]; no need, I use "i" instead
+//let squareKeys = ["1", "2", "3", "4", "5", "6", "7"]; no need, I use "i+1" instead
 let slideKeys = ["z", "x", "c", "v", "b", "n", "m"]; // required order
-let slideKeyIndex = 0;
-let slideTime = 0;
+let slideKeyIndex = 0; // check the index of the key being pressed
+let slideTime = 0; // time of the last pressed key
 
 const premadeColors = ["Red", "Green", "Blue", "Yellow", "White", "Orange", "Cyan"]; // Change the color here
 
@@ -30,8 +30,8 @@ function updateDisplay() {
     }).join("");
 
     document.getElementById("Information").innerHTML =
-        "<strong>Color Key (Squares):</strong> <div class='color-container'>" + colorGuideSquare + "</div>" +
-        "<strong>Color Key (Circles):</strong> <div class='color-container'>" + colorGuideCircle + "</div>";
+        "Color Key (Squares): <div class='color-container'>" + colorGuideSquare + "</div>" +
+        "Color Key (Circles): <div class='color-container'>" + colorGuideCircle + "</div>";
 
     document.getElementById("userText").innerHTML =
         "Your Colors: <div class='color-container'>" + userColorBoxes + "</div>";
@@ -64,17 +64,26 @@ document.addEventListener("keydown", function (event) {
                 color: itemsSystem[i].color, shape: itemsSystem[i].shape
                 });
             }
-            score += 30;
+            score += 20;
             alert("Gamble win");
-            } else { // or false ( 80% )
-                for (let i = 0; i < premadeColors.length; i++) {
-                    const randomColor = premadeColors[Math.floor(Math.random() * premadeColors.length)];
-                    const randomShape = Math.random() < 0.5 ? "square" : "circle";
-                    items.push({ color: randomColor, shape: randomShape });
+            if (score > 50){
+            alert("You win!");
+            window.location.reload();
+            }
+            systemBox();
+
+        } else { // or false ( 80% )
+            for (let i = 0; i < premadeColors.length; i++) {
+                const randomColor = premadeColors[Math.floor(Math.random() * premadeColors.length)];
+                const randomShape = Math.random() < 0.5 ? "square" : "circle";
+                items.push({ color: randomColor, shape: randomShape });
                 }
-                score -= 10;
-                if (score < 0) score = 0;
-                alert("Gamble lost");
+            score -= 5;
+            alert("Gamble lost");
+            if (score < 0){
+            window.location.reload();
+            alert("You lose!");
+            } 
             }
             updateDisplay();
             slideKeyIndex = 0;
@@ -113,15 +122,26 @@ function userBox() {
         else if (event.key.toLowerCase() === "y") { newColor = "Orange"; shape = "circle"; }
         else if (event.key.toLowerCase() === "u") { newColor = "Cyan"; shape = "circle"; }
 
+        if (event.key === "l") { // Remove last item 
+            items.pop();
+            updateDisplay();
+            return;
+        }
+
+// let color use newColor values
         if (newColor) {
             items.push({ color: newColor, shape: shape });
-            if (items.length > itemsSystem.length) items.shift();
+            if (items.length > itemsSystem.length){
+                items.shift();
+            } 
             updateDisplay();
         }
     });
 }
 
 
+
+// The system premade box
 function systemBox() {
     itemsSystem = [];
     for (let i = 0; i < premadeColors.length; i++) {
@@ -132,7 +152,7 @@ function systemBox() {
     updateDisplay();
 }
 
-
+// Compare the system box and user box
 function compareArrays(items, itemsSystem) {
     if (items.length !== itemsSystem.length) {
         return false;
@@ -146,7 +166,7 @@ function compareArrays(items, itemsSystem) {
     return true;
 }
 
-
+// Button to check and to execute the compareArrays function
 document.getElementById("CheckerButton").textContent = "Check Colors";
 document.getElementById("CheckerButton").addEventListener("pointerdown", function() {
     if (compareArrays(items, itemsSystem)) {
@@ -161,13 +181,18 @@ document.getElementById("CheckerButton").addEventListener("pointerdown", functio
         items = [];
         score--;
         hiddenScore--;
-        if (score < 0) {
+        if (score < 1) {
             alert("You lose!");
-            score = 0;
+            window.location.reload();
         }
-        if (hiddenScore < -2 && score == 0) {
+        if (score > 50){
+            alert("You win!");
+            window.location.reload();
+        }
+        if (hiddenScore < -5) {
             window.open("https://www.youtube.com/watch?v=lfmg-EJ8gm4");
             hiddenScore = 0;
+            window.location.reload();
         }
         updateDisplay();
     }
